@@ -9,7 +9,8 @@
   },
   "files": [
     "src",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "node --test",
@@ -17,6 +18,14 @@
     "release:check": "npm test && npm run package:smoke"
   },
   "keywords": [],
-  "author": "StackForge User",
-  "license": "MIT"
+  "author": "Roger Chappel",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rogerchappel/modelpermit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/modelpermit/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/modelpermit#readme"
 }
