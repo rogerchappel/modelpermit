@@ -43,6 +43,13 @@ npm run release:check
 - Treat the PRD as direction, not a guarantee that every listed capability is implemented.
 - Do not use the package for production security, compliance, or release decisions until tests and examples cover that workflow.
 
+## Package contents
+
+The npm package allowlist includes the runtime files plus the public support
+documents needed for release review: `README.md`, `LICENSE`, `SECURITY.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`.
+Run `npm run package:smoke` or `npm pack --dry-run` before publishing to
+confirm those files are still present in the tarball.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Keep changes small, update the PRD or README when scope changes, and include the exact verification command in every pull request.
