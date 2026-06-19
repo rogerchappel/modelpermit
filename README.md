@@ -1,16 +1,16 @@
 # modelpermit
 
-modelpermit is an early-stage local-first developer tool.
+Model and provider permission policy checks for agent workflows.
 
 ## Status
 
-This repository is early-stage. The README now reflects the current project intent from `docs/PRD.md`, but behavior should still be treated as pre-1.0 until implementation, examples, and release checks mature.
+This repository is an early v0.1.0 implementation. It contains a small local-first policy checker plus project governance, product notes, and release hygiene files. Treat it as preview software until more policy shapes and workflow examples are covered.
 
-## Install from a checkout
+## Install
+
+For local development:
 
 ```sh
-git clone https://github.com/rogerchappel/modelpermit.git
-cd modelpermit
 npm install
 ```
 
@@ -33,9 +33,15 @@ node src/cli.js check fixtures/dangerous.json --json
 
 ## Verification
 
+Run the available repository checks before opening a pull request:
+
 ```sh
 npm test
-npm run package:smoke
+```
+
+If `release:check` exists in `package.json`, run it as the broader release-readiness gate:
+
+```sh
 npm run release:check
 ```
 
@@ -56,26 +62,12 @@ confirm those files are still present in the tarball.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Keep changes small, update the PRD or README when scope changes, and include the exact verification command in every pull request.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution expectations. Changes should be small, reviewable, and verified before review.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md). Do not include secrets, private tokens, proprietary dependency data, or sensitive logs in public issues or examples.
+See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance.
 
 ## License
 
 MIT
-
-## Verification
-
-Run the release-readiness checks before publishing or cutting a PR:
-
-```bash
-npm run build
-npm run test
-npm run smoke
-npm run package:smoke
-npm run release:check
-```
-
-Use `npm run package:smoke` or `npm pack --dry-run` to confirm the published tarball includes the support docs and runnable package contents.
