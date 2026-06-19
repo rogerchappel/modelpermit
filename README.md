@@ -16,17 +16,19 @@ npm install
 
 ## Use
 
-Start by reading the product notes and running the local checks:
+Check a local model permit policy:
 
 ```sh
-sed -n '1,120p' docs/PRD.md
-npm test
+modelpermit check modelpermit.json
+modelpermit check modelpermit.json --json
 ```
 
-If you are evaluating the package contents before a release, run:
+From a checkout, use the bundled fixtures to preview strict and permissive
+policy reports:
 
 ```sh
-npm run release:check
+node src/cli.js check fixtures/strict.json
+node src/cli.js check fixtures/dangerous.json --json
 ```
 
 ## Verification
@@ -39,14 +41,16 @@ npm run release:check
 
 ## Limitations
 
-- The package is still a v0.1.0 project and may not expose a finished CLI or public API yet.
+- The package is still a v0.1.0 project and validates a small portable JSON shape rather than enforcing permissions at runtime.
 - Treat the PRD as direction, not a guarantee that every listed capability is implemented.
-- Do not use the package for production security, compliance, or release decisions until tests and examples cover that workflow.
+- Do not use the package as the only control for production security, compliance, or release decisions until tests and examples cover your policy workflow.
 
 ## Package contents
 
 The npm package allowlist includes the runtime files plus the public support
 documents needed for release review: `README.md`, `LICENSE`, `SECURITY.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`.
+The package also includes `fixtures/` so consumers can run the same strict,
+dangerous, and invalid policy checks used by the smoke tests.
 Run `npm run package:smoke` or `npm pack --dry-run` before publishing to
 confirm those files are still present in the tarball.
 
