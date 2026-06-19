@@ -1,0 +1,6 @@
+{
+  "allowedModels": ["gpt-5"],
+  "approvalMode": "auto",
+  "network": "any",
+  "writePaths": ["/"]
+}

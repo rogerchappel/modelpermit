@@ -4,11 +4,11 @@ Model and provider permission policy checks for agent workflows.
 
 ## Status
 
-This repository is currently a planning and scaffolding repo. It contains project governance, product notes, and release hygiene files, but it does not yet include the package implementation advertised by `package.json`. Treat it as not ready for installation or production use until `src/` and real usage examples land.
+This repository is an early v0.1.0 implementation. It contains a small local-first policy checker plus project governance, product notes, and release hygiene files. Treat it as preview software until more policy shapes and workflow examples are covered.
 
 ## Install
 
-There is no supported install path yet. For local stewardship or planning work, install dependencies only when a future implementation adds them:
+For local development:
 
 ```sh
 npm install
@@ -16,9 +16,22 @@ npm install
 
 ## Use
 
-No runtime API or CLI is available yet. Start with the planning material in `docs/PRD.md` and `ROADMAP.md` before implementing package entry points.
+Check a local model permit policy:
 
-## Verify
+```sh
+modelpermit check modelpermit.json
+modelpermit check modelpermit.json --json
+```
+
+From a checkout, use the bundled fixtures to preview strict and permissive
+policy reports:
+
+```sh
+node src/cli.js check fixtures/strict.json
+node src/cli.js check fixtures/dangerous.json --json
+```
+
+## Verification
 
 Run the available repository checks before opening a pull request:
 
@@ -34,9 +47,18 @@ npm run release:check
 
 ## Limitations
 
-- The package entry points are placeholders until an implementation is added.
-- README examples should be updated with real commands before any release claim is made.
-- Security and production posture should be reassessed after the first implementation lands.
+- The package is still a v0.1.0 project and validates a small portable JSON shape rather than enforcing permissions at runtime.
+- Treat the PRD as direction, not a guarantee that every listed capability is implemented.
+- Do not use the package as the only control for production security, compliance, or release decisions until tests and examples cover your policy workflow.
+
+## Package contents
+
+The npm package allowlist includes the runtime files plus the public support
+documents needed for release review: `README.md`, `LICENSE`, `SECURITY.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`.
+The package also includes `fixtures/` so consumers can run the same strict,
+dangerous, and invalid policy checks used by the smoke tests.
+Run `npm run package:smoke` or `npm pack --dry-run` before publishing to
+confirm those files are still present in the tarball.
 
 ## Contributing
 

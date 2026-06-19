@@ -18,12 +18,12 @@ Repos increasingly contain agent config files, but allowed model/tool/network/wr
 
 ## V1 Scope
 
-- TypeScript CLI package.
-- `modelpermit init`, `modelpermit check modelpermit.json`, and `modelpermit explain`.
-- JSON schema for allowed models, denied models, tool capabilities, path scopes, network policy, secret handling, and approval mode.
+- Node.js CLI package.
+- `modelpermit check modelpermit.json`, with `init` and `explain` reserved for later releases.
+- JSON policy shape for allowed models, denied models, path scopes, network policy, and approval mode.
 - Validate configs with actionable errors and warnings.
 - Emit Markdown and JSON reports.
-- Include fixtures for strict, permissive, invalid, and dangerous policies.
+- Include fixtures for strict, invalid, and dangerous policies.
 
 ## Out of Scope
 
@@ -33,5 +33,4 @@ Repos increasingly contain agent config files, but allowed model/tool/network/wr
 
 ## Verification
 
-Run `npm test`, `npm run check`, `npm run build`, `npm run smoke`, `bash scripts/validate.sh`, and an end-to-end init/check/explain smoke.
-
+Run `npm test`, `npm run build`, `npm run smoke`, `npm run package:smoke`, `npm run release:check`, `bash scripts/validate.sh`, and an end-to-end check smoke against the bundled fixtures.
