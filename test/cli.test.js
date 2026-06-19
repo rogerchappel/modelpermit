@@ -3,7 +3,7 @@ import { execFile } from "node:child_process";
 import { describe, it } from "node:test";
 import { promisify } from "node:util";
 
-import { VERSION, describeModelPermit } from "../src/index.js";
+import { VERSION, checkPermit, describeModelPermit } from "../src/index.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -18,6 +18,7 @@ describe("modelpermit CLI", () => {
 
     assert.match(stdout, /modelpermit 0\.1\.0/);
     assert.match(stdout, /validates local model-use policy drafts/);
+    assert.match(stdout, /modelpermit check modelpermit\.json/);
   });
 
   it("returns a non-zero code for unknown arguments", async () => {
@@ -26,6 +27,46 @@ describe("modelpermit CLI", () => {
       (error) => {
         assert.equal(error.code, 2);
         assert.match(error.stderr, /unknown argument --unknown/);
+        return true;
+      },
+    );
+  });
+
+  it("validates strict policy objects without warnings", () => {
+    const result = checkPermit({
+      allowedModels: ["gpt-5-mini"],
+      deniedModels: ["legacy-unsafe-model"],
+      approvalMode: "manual",
+      network: "none",
+      writePaths: ["./reports"]
+    });
+
+    assert.equal(result.valid, true);
+    assert.deepEqual(result.errors, []);
+    assert.deepEqual(result.warnings, []);
+  });
+
+  it("warns on permissive network and root write scopes", () => {
+    const result = checkPermit({
+      allowedModels: ["gpt-5"],
+      approvalMode: "auto",
+      network: "any",
+      writePaths: ["/"]
+    });
+
+    assert.equal(result.valid, true);
+    assert.match(result.warnings.join("\n"), /network:any/);
+    assert.match(result.warnings.join("\n"), /root access/);
+  });
+
+  it("fails invalid policy fixtures through the CLI", async () => {
+    await assert.rejects(
+      execFileAsync(process.execPath, ["src/cli.js", "check", "fixtures/invalid.json", "--json"]),
+      (error) => {
+        const report = JSON.parse(error.stdout);
+        assert.equal(error.code, 1);
+        assert.equal(report.valid, false);
+        assert.ok(report.errors.length >= 2);
         return true;
       },
     );

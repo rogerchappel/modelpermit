@@ -1,0 +1,7 @@
+{
+  "allowedModels": ["gpt-5-mini"],
+  "deniedModels": ["legacy-unsafe-model"],
+  "approvalMode": "manual",
+  "network": "none",
+  "writePaths": ["./reports", "./tmp"]
+}
