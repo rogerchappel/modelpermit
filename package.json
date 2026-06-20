@@ -1,7 +1,7 @@
 {
   "name": "modelpermit",
   "version": "0.1.0",
-  "description": "modelpermit is an early-stage local-first developer tool.",
+  "description": "Local-first model and provider permission policy checker for agent workflows.",
   "type": "module",
   "main": "./src/index.js",
   "exports": {
@@ -24,7 +24,13 @@
     "build": "node --check src/index.js && node --check src/cli.js",
     "smoke": "bash scripts/smoke.sh && node src/cli.js check fixtures/strict.json && node src/cli.js check fixtures/dangerous.json --json"
   },
-  "keywords": [],
+  "keywords": [
+    "agents",
+    "model-policy",
+    "permissions",
+    "release-readiness",
+    "local-first"
+  ],
   "author": "Roger Chappel",
   "license": "MIT",
   "engines": {
