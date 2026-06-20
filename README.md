@@ -31,6 +31,35 @@ node src/cli.js check fixtures/strict.json
 node src/cli.js check fixtures/dangerous.json --json
 ```
 
+## Policy shape
+
+`modelpermit` currently validates a compact JSON policy:
+
+```json
+{
+  "allowedModels": ["gpt-5-mini"],
+  "deniedModels": ["legacy-unsafe-model"],
+  "approvalMode": "manual",
+  "network": "none",
+  "writePaths": ["./reports", "./tmp"]
+}
+```
+
+Required:
+
+- `allowedModels`: non-empty array of model ids.
+
+Optional:
+
+- `deniedModels`: array of model ids that must not be used.
+- `approvalMode`: one of `manual`, `ask`, or `auto`.
+- `network`: one of `none`, `allowlist`, or `any`.
+- `writePaths`: array of local write scopes.
+
+Release-review warnings are emitted for `network: "any"` and root write access
+because those permissions are easy to over-grant before publishing an agent
+workflow.
+
 ## Verification
 
 Run the available repository checks before opening a pull request:
