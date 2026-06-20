@@ -31,6 +31,9 @@ node src/cli.js check fixtures/strict.json
 node src/cli.js check fixtures/dangerous.json --json
 ```
 
+`fixtures/malformed.json` is intentionally invalid and is used by the smoke
+checks to prove malformed field shapes fail before release.
+
 ## Policy shape
 
 `modelpermit` currently validates a compact JSON policy:
