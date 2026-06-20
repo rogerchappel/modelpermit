@@ -59,6 +59,28 @@ describe("modelpermit CLI", () => {
     assert.match(result.warnings.join("\n"), /root access/);
   });
 
+  it("rejects empty denied model and write path entries", () => {
+    const result = checkPermit({
+      allowedModels: ["gpt-5-mini"],
+      deniedModels: ["", "legacy-unsafe-model"],
+      writePaths: ["./reports", " "]
+    });
+
+    assert.equal(result.valid, false);
+    assert.match(result.errors.join("\n"), /deniedModels entries/);
+    assert.match(result.errors.join("\n"), /writePaths entries/);
+  });
+
+  it("rejects non-array write path scopes", () => {
+    const result = checkPermit({
+      allowedModels: ["gpt-5-mini"],
+      writePaths: "./reports"
+    });
+
+    assert.equal(result.valid, false);
+    assert.match(result.errors.join("\n"), /writePaths must be an array/);
+  });
+
   it("fails invalid policy fixtures through the CLI", async () => {
     await assert.rejects(
       execFileAsync(process.execPath, ["src/cli.js", "check", "fixtures/invalid.json", "--json"]),

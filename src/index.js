@@ -27,6 +27,10 @@ export function checkPermit(policy) {
     errors.push("deniedModels must be an array when present");
   }
 
+  if (policy.deniedModels?.some((model) => typeof model !== "string" || model.trim() === "")) {
+    errors.push("deniedModels entries must be non-empty strings");
+  }
+
   if (policy.approvalMode && !approvalModes.has(policy.approvalMode)) {
     errors.push(`approvalMode must be one of ${[...approvalModes].join(", ")}`);
   }
@@ -37,6 +41,14 @@ export function checkPermit(policy) {
 
   if (policy.network === "any") {
     warnings.push("network:any should be reviewed before release");
+  }
+
+  if (policy.writePaths && !Array.isArray(policy.writePaths)) {
+    errors.push("writePaths must be an array when present");
+  }
+
+  if (Array.isArray(policy.writePaths) && policy.writePaths.some((path) => typeof path !== "string" || path.trim() === "")) {
+    errors.push("writePaths entries must be non-empty strings");
   }
 
   if (Array.isArray(policy.writePaths) && policy.writePaths.includes("/")) {
