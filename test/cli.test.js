@@ -59,6 +59,15 @@ describe("modelpermit CLI", () => {
     assert.match(result.warnings.join("\n"), /root access/);
   });
 
+  it("prints JSON for valid policy fixtures through the CLI", async () => {
+    const { stdout } = await execFileAsync(process.execPath, ["src/cli.js", "check", "fixtures/strict.json", "--json"]);
+    const report = JSON.parse(stdout);
+
+    assert.equal(report.valid, true);
+    assert.deepEqual(report.errors, []);
+    assert.deepEqual(report.warnings, []);
+  });
+
   it("rejects empty denied model and write path entries", () => {
     const result = checkPermit({
       allowedModels: ["gpt-5-mini"],
