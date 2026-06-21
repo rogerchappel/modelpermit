@@ -65,17 +65,19 @@ workflow.
 
 ## Verification
 
-Run the available repository checks before opening a pull request:
+Run the repository checks before opening a pull request:
 
 ```sh
 npm test
-```
-
-If `release:check` exists in `package.json`, run it as the broader release-readiness gate:
-
-```sh
+npm run build
+npm run smoke
+npm run package:smoke
 npm run release:check
 ```
+
+`npm run release:check` is the broader release-readiness gate used by CI. It
+combines syntax checks, tests, fixture-backed CLI smoke coverage, and the dry-run
+npm pack check.
 
 ## Limitations
 
