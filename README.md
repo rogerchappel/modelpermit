@@ -93,6 +93,8 @@ The package also includes `fixtures/` so consumers can run the same strict,
 dangerous, and invalid policy checks used by the smoke tests.
 Run `npm run package:smoke` or `npm pack --dry-run` before publishing to
 confirm those files are still present in the tarball.
+The maintained `package:smoke` script asserts the CLI entrypoint, library
+source, support docs, and every policy fixture that backs the smoke tests.
 
 ## Contributing
 
