@@ -78,6 +78,15 @@ npm run release:check
 `npm run release:check` is the broader release-readiness gate used by CI. It
 combines syntax checks, tests, fixture-backed CLI smoke coverage, and the dry-run
 npm pack check.
+## CLI Help Smoke
+
+Confirm the packaged command starts and prints its help text before relying on a release tarball or downstream automation:
+
+```bash
+node ./src/cli.js --help
+```
+
+The command should exit successfully, print the available options, and avoid reading project files or contacting external services.
 
 ## Limitations
 
