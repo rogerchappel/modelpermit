@@ -34,6 +34,20 @@ node src/cli.js check fixtures/dangerous.json --json
 `fixtures/malformed.json` is intentionally invalid and is used by the smoke
 checks to prove malformed field shapes fail before release.
 
+## Runnable demo
+
+Compare a strict policy with an over-broad policy, then confirm an invalid
+policy fails validation:
+
+```sh
+bash demo/review-permission-policies.sh
+```
+
+The demo uses only checked-in fixtures and does not contact a model provider or
+enforce permissions at runtime. See the
+[permission policy review tutorial](docs/tutorials/review-permission-policies.md)
+for the expected findings and guidance on using the JSON output in automation.
+
 ## Policy shape
 
 `modelpermit` currently validates a compact JSON policy:
