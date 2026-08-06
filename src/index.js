@@ -16,18 +16,14 @@ export function checkPermit(policy) {
   }
 
   if (!Array.isArray(policy.allowedModels) || policy.allowedModels.length === 0) {
-    errors.push("allowedModels must contain at least one model id");
-  }
-
-  if (policy.allowedModels?.some((model) => typeof model !== "string" || model.trim() === "")) {
+    errors.push("allowedModels must be a non-empty array of model ids");
+  } else if (policy.allowedModels.some((model) => typeof model !== "string" || model.trim() === "")) {
     errors.push("allowedModels entries must be non-empty strings");
   }
 
-  if (policy.deniedModels && !Array.isArray(policy.deniedModels)) {
+  if (policy.deniedModels !== undefined && !Array.isArray(policy.deniedModels)) {
     errors.push("deniedModels must be an array when present");
-  }
-
-  if (policy.deniedModels?.some((model) => typeof model !== "string" || model.trim() === "")) {
+  } else if (Array.isArray(policy.deniedModels) && policy.deniedModels.some((model) => typeof model !== "string" || model.trim() === "")) {
     errors.push("deniedModels entries must be non-empty strings");
   }
 
