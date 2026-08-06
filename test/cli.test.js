@@ -18,7 +18,7 @@ describe("modelpermit CLI", () => {
 
     assert.match(stdout, /modelpermit 0\.1\.0/);
     assert.match(stdout, /validates local model-use policy drafts/);
-    assert.match(stdout, /modelpermit check modelpermit\.json/);
+    assert.match(stdout, /modelpermit check <file> \[--json\]/);
   });
 
   it("returns a non-zero code for unknown arguments", async () => {
@@ -88,6 +88,44 @@ describe("modelpermit CLI", () => {
 
     assert.equal(result.valid, false);
     assert.match(result.errors.join("\n"), /writePaths must be an array/);
+  });
+
+  it("returns field-specific errors for non-array model lists", () => {
+    const cases = [
+      ["allowedModels", "gpt-5-mini", /allowedModels must be a non-empty array/],
+      ["allowedModels", { model: "gpt-5-mini" }, /allowedModels must be a non-empty array/],
+      ["allowedModels", 42, /allowedModels must be a non-empty array/],
+      ["deniedModels", "legacy-unsafe-model", /deniedModels must be an array when present/],
+      ["deniedModels", { model: "legacy-unsafe-model" }, /deniedModels must be an array when present/],
+      ["deniedModels", false, /deniedModels must be an array when present/],
+    ];
+
+    for (const [field, value, message] of cases) {
+      const result = checkPermit({ allowedModels: ["gpt-5-mini"], [field]: value });
+
+      assert.equal(result.valid, false);
+      assert.match(result.errors.join("\n"), message);
+      assert.deepEqual(result.warnings, []);
+    }
+  });
+
+  it("rejects arguments outside the documented check grammar", async () => {
+    const cases = [
+      [["check", "fixtures/strict.json", "--bogus"], /unsupported option --bogus/],
+      [["check", "--bogus", "fixtures/strict.json"], /unsupported option --bogus/],
+      [["check", "fixtures/strict.json", "extra.json"], /unexpected argument extra\.json/],
+      [["check", "fixtures/strict.json", "--json", "--json"], /--json may only be specified once/],
+      [["check", "--json", "fixtures/strict.json"], /policy JSON file must come before --json/],
+    ];
+
+    for (const [args, message] of cases) {
+      await assert.rejects(execFileAsync(process.execPath, ["src/cli.js", ...args]), (error) => {
+        assert.equal(error.code, 2);
+        assert.match(error.stderr, message);
+        assert.match(error.stderr, /Usage:\n  modelpermit check <file> \[--json\]/);
+        return true;
+      });
+    }
   });
 
   it("fails invalid policy fixtures through the CLI", async () => {
