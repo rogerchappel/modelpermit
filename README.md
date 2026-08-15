@@ -73,6 +73,10 @@ Optional:
 - `network`: one of `none`, `allowlist`, or `any`.
 - `writePaths`: array of local write scopes.
 
+When an optional field is present, its value must match the documented type or
+allowed values; falsy values such as `null`, `false`, and an empty string are not
+treated as omitted fields.
+
 Release-review warnings are emitted for `network: "any"` and root write access
 because those permissions are easy to over-grant before publishing an agent
 workflow.
