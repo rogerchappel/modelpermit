@@ -27,11 +27,11 @@ export function checkPermit(policy) {
     errors.push("deniedModels entries must be non-empty strings");
   }
 
-  if (policy.approvalMode && !approvalModes.has(policy.approvalMode)) {
+  if (policy.approvalMode !== undefined && !approvalModes.has(policy.approvalMode)) {
     errors.push(`approvalMode must be one of ${[...approvalModes].join(", ")}`);
   }
 
-  if (policy.network && !networkPolicies.has(policy.network)) {
+  if (policy.network !== undefined && !networkPolicies.has(policy.network)) {
     errors.push(`network must be one of ${[...networkPolicies].join(", ")}`);
   }
 
@@ -39,7 +39,7 @@ export function checkPermit(policy) {
     warnings.push("network:any should be reviewed before release");
   }
 
-  if (policy.writePaths && !Array.isArray(policy.writePaths)) {
+  if (policy.writePaths !== undefined && !Array.isArray(policy.writePaths)) {
     errors.push("writePaths must be an array when present");
   }
 
