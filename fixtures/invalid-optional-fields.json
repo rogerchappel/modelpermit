@@ -1,0 +1,6 @@
+{
+  "allowedModels": ["gpt-5-mini"],
+  "approvalMode": "",
+  "network": false,
+  "writePaths": null
+}
