@@ -90,6 +90,33 @@ describe("modelpermit CLI", () => {
     assert.match(result.errors.join("\n"), /writePaths must be an array/);
   });
 
+  it("rejects every supplied approval mode outside the documented values", () => {
+    for (const approvalMode of ["", false, null, "sometimes"]) {
+      const result = checkPermit({ allowedModels: ["gpt-5-mini"], approvalMode });
+
+      assert.equal(result.valid, false);
+      assert.match(result.errors.join("\n"), /approvalMode must be one of manual, ask, auto/);
+    }
+  });
+
+  it("rejects every supplied network policy outside the documented values", () => {
+    for (const network of ["", false, null, "restricted"]) {
+      const result = checkPermit({ allowedModels: ["gpt-5-mini"], network });
+
+      assert.equal(result.valid, false);
+      assert.match(result.errors.join("\n"), /network must be one of none, allowlist, any/);
+    }
+  });
+
+  it("rejects falsy non-array write path scopes", () => {
+    for (const writePaths of ["", false, null]) {
+      const result = checkPermit({ allowedModels: ["gpt-5-mini"], writePaths });
+
+      assert.equal(result.valid, false);
+      assert.match(result.errors.join("\n"), /writePaths must be an array when present/);
+    }
+  });
+
   it("returns field-specific errors for non-array model lists", () => {
     const cases = [
       ["allowedModels", "gpt-5-mini", /allowedModels must be a non-empty array/],
@@ -136,6 +163,22 @@ describe("modelpermit CLI", () => {
         assert.equal(error.code, 1);
         assert.equal(report.valid, false);
         assert.ok(report.errors.length >= 2);
+        return true;
+      },
+    );
+  });
+
+  it("reports all invalid supplied optional fields through the CLI", async () => {
+    await assert.rejects(
+      execFileAsync(process.execPath, ["src/cli.js", "check", "fixtures/invalid-optional-fields.json", "--json"]),
+      (error) => {
+        const report = JSON.parse(error.stdout);
+        assert.equal(error.code, 1);
+        assert.equal(report.valid, false);
+        assert.equal(report.errors.length, 3);
+        assert.match(report.errors.join("\n"), /approvalMode/);
+        assert.match(report.errors.join("\n"), /network/);
+        assert.match(report.errors.join("\n"), /writePaths/);
         return true;
       },
     );
