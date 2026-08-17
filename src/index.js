@@ -27,6 +27,15 @@ export function checkPermit(policy) {
     errors.push("deniedModels entries must be non-empty strings");
   }
 
+  if (Array.isArray(policy.allowedModels) && Array.isArray(policy.deniedModels)) {
+    const deniedModels = new Set(policy.deniedModels);
+    const conflicts = [...new Set(policy.allowedModels.filter((model) => deniedModels.has(model)))].sort();
+
+    if (conflicts.length > 0) {
+      errors.push(`allowedModels and deniedModels overlap: ${conflicts.join(", ")}`);
+    }
+  }
+
   if (policy.approvalMode !== undefined && !approvalModes.has(policy.approvalMode)) {
     errors.push(`approvalMode must be one of ${[...approvalModes].join(", ")}`);
   }
