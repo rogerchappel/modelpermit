@@ -46,6 +46,30 @@ describe("modelpermit CLI", () => {
     assert.deepEqual(result.warnings, []);
   });
 
+  it("rejects a model present in both allow and deny lists", () => {
+    const result = checkPermit({
+      allowedModels: ["gpt-5-mini"],
+      deniedModels: ["gpt-5-mini"]
+    });
+
+    assert.equal(result.valid, false);
+    assert.deepEqual(result.errors, [
+      "allowedModels and deniedModels overlap: gpt-5-mini"
+    ]);
+  });
+
+  it("reports multiple overlaps once in deterministic order", () => {
+    const result = checkPermit({
+      allowedModels: ["model-z", "model-a", "model-z"],
+      deniedModels: ["model-z", "model-a", "model-a"]
+    });
+
+    assert.equal(result.valid, false);
+    assert.deepEqual(result.errors, [
+      "allowedModels and deniedModels overlap: model-a, model-z"
+    ]);
+  });
+
   it("warns on permissive network and root write scopes", () => {
     const result = checkPermit({
       allowedModels: ["gpt-5"],
@@ -163,6 +187,21 @@ describe("modelpermit CLI", () => {
         assert.equal(error.code, 1);
         assert.equal(report.valid, false);
         assert.ok(report.errors.length >= 2);
+        return true;
+      },
+    );
+  });
+
+  it("reports conflicting model ids from a fixture through the CLI", async () => {
+    await assert.rejects(
+      execFileAsync(process.execPath, ["src/cli.js", "check", "fixtures/conflicting.json", "--json"]),
+      (error) => {
+        const report = JSON.parse(error.stdout);
+        assert.equal(error.code, 1);
+        assert.equal(report.valid, false);
+        assert.deepEqual(report.errors, [
+          "allowedModels and deniedModels overlap: model-a, model-z"
+        ]);
         return true;
       },
     );

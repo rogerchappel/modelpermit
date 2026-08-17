@@ -19,4 +19,11 @@ if node src/cli.js check fixtures/malformed.json; then
 fi
 
 echo
-echo "Demo passed: strict, warning, and invalid policy paths behaved as expected."
+echo "4. Conflicting model policy (expected to fail)"
+if node src/cli.js check fixtures/conflicting.json; then
+  echo "Expected the conflicting fixture to fail validation." >&2
+  exit 1
+fi
+
+echo
+echo "Demo passed: strict, warning, malformed, and conflicting policy paths behaved as expected."

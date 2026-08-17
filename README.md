@@ -33,6 +33,8 @@ node src/cli.js check fixtures/dangerous.json --json
 
 `fixtures/malformed.json` is intentionally invalid and is used by the smoke
 checks to prove malformed field shapes fail before release.
+`fixtures/conflicting.json` is also invalid and demonstrates the diagnostic
+for model ids that appear in both allow and deny lists.
 
 ## Runnable demo
 
@@ -76,6 +78,11 @@ Optional:
 When an optional field is present, its value must match the documented type or
 allowed values; falsy values such as `null`, `false`, and an empty string are not
 treated as omitted fields.
+
+A model id cannot appear in both `allowedModels` and `deniedModels`. Repeated
+conflicts are reported once, sorted by model id, so library and CLI diagnostics
+remain deterministic. Duplicate ids that occur only within one list do not
+change the policy meaning.
 
 Release-review warnings are emitted for `network: "any"` and root write access
 because those permissions are easy to over-grant before publishing an agent

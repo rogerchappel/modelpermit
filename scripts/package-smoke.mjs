@@ -8,6 +8,7 @@ const expectedFiles = [
   "src/index.js",
   "fixtures/strict.json",
   "fixtures/dangerous.json",
+  "fixtures/conflicting.json",
   "fixtures/invalid.json",
   "fixtures/malformed.json",
   "README.md",

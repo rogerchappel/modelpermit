@@ -14,12 +14,14 @@ npm install
 bash demo/review-permission-policies.sh
 ```
 
-The script exercises three checked-in fixtures:
+The script exercises four checked-in fixtures:
 
 1. `fixtures/strict.json` is valid and produces no warnings.
 2. `fixtures/dangerous.json` is valid, but warns about `network: "any"` and a
    root entry in `writePaths`.
 3. `fixtures/malformed.json` has invalid field shapes and must exit non-zero.
+4. `fixtures/conflicting.json` puts model ids in both allow and deny lists and
+   must exit non-zero with the conflicting ids sorted in its diagnostic.
 
 The second case is deliberately a warning rather than a failure. `modelpermit`
 validates and reports policy intent; it does not decide whether broad access is
@@ -31,9 +33,9 @@ appropriate for a particular workflow.
 node src/cli.js check fixtures/dangerous.json --json
 ```
 
-The JSON report contains `valid`, `errors`, `warnings`, and the normalized
-`policy`. A review step can inspect `warnings`, while malformed policies already
-return a non-zero exit status. Do not treat a valid report as runtime
+The JSON report contains `valid`, `errors`, and `warnings`. A review step can
+inspect `warnings`, while malformed or contradictory policies already return a
+non-zero exit status. Do not treat a valid report as runtime
 enforcement: the CLI does not call providers, intercept model requests, or
 restrict filesystem and network access.
 
