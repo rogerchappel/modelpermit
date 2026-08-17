@@ -1,0 +1,6 @@
+{
+  "allowedModels": ["model-z", "model-a", "model-z"],
+  "deniedModels": ["model-a", "model-z", "model-a"],
+  "approvalMode": "manual",
+  "network": "none"
+}
