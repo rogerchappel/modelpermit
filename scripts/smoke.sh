@@ -12,3 +12,10 @@ fi
 
 grep -q "deniedModels entries must be non-empty strings" /tmp/modelpermit-malformed.json
 grep -q "writePaths must be an array when present" /tmp/modelpermit-malformed.json
+
+if node src/cli.js check fixtures/conflicting.json --json > /tmp/modelpermit-conflicting.json; then
+  echo "Expected conflicting fixture to fail validation."
+  exit 1
+fi
+
+grep -q "allowedModels and deniedModels overlap: model-a, model-z" /tmp/modelpermit-conflicting.json
