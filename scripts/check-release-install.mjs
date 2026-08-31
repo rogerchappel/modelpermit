@@ -27,6 +27,21 @@ export function checkReleaseInstall(root = process.cwd()) {
     }
   }
 
+  const releasePath = `${root}/.github/workflows/release.yml`;
+  if (existsSync(releasePath)) {
+    const release = readFileSync(releasePath, "utf8");
+    const artifact = "${{ steps.pack.outputs.tarball }}";
+    if (!release.includes('id: pack') || !release.includes('echo "tarball=$(npm pack --silent)" >> "$GITHUB_OUTPUT"')) {
+      errors.push(".github/workflows/release.yml must capture the npm pack output as the pack output");
+    }
+    if (!release.includes(`npm publish "${artifact}" --provenance --access public`)) {
+      errors.push(".github/workflows/release.yml must publish the pack output with provenance and public access");
+    }
+    if (!release.match(new RegExp(`gh release create[^\\n]+\\$\\{\\{ steps\\.pack\\.outputs\\.tarball \\}\\}`))) {
+      errors.push(".github/workflows/release.yml must use the pack output as the release attachment");
+    }
+  }
+
   return errors;
 }
 

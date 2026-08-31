@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const expectedFiles = [
   "src/cli.js",
@@ -19,7 +21,8 @@ const expectedFiles = [
   "CODE_OF_CONDUCT.md"
 ];
 
-const output = execFileSync("npm", ["pack", "--dry-run", "--json"], {
+const scratch = await mkdtemp(join(tmpdir(), "modelpermit-package-smoke-"));
+const output = execFileSync("npm", ["pack", "--json", "--pack-destination", scratch], {
   encoding: "utf8",
   stdio: ["ignore", "pipe", "inherit"]
 });
@@ -42,4 +45,19 @@ if (packageJson.bin?.modelpermit !== "./src/cli.js") {
   process.exit(1);
 }
 
+const tarball = join(scratch, pack.filename);
+const consumer = join(scratch, "consumer");
+execFileSync("npm", ["install", "--ignore-scripts", "--prefix", consumer, tarball], {
+  stdio: "inherit"
+});
+execFileSync(join(consumer, "node_modules/.bin/modelpermit"), ["--help"], {
+  stdio: ["ignore", "ignore", "inherit"]
+});
+execFileSync(
+  process.execPath,
+  ["--input-type=module", "--eval", 'import("modelpermit").then(({ describeModelPermit }) => { if (!describeModelPermit()) process.exit(1); })'],
+  { cwd: consumer, stdio: "inherit" }
+);
+
 console.log(`modelpermit package smoke passed with ${pack.files.length} packed file(s).`);
+await rm(scratch, { recursive: true, force: true });
