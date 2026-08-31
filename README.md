@@ -128,7 +128,15 @@ dangerous, and invalid policy checks used by the smoke tests.
 Run `npm run package:smoke` or `npm pack --dry-run` before publishing to
 confirm those files are still present in the tarball.
 The maintained `package:smoke` script asserts the CLI entrypoint, library
-source, support docs, and every policy fixture that backs the smoke tests.
+source, support docs, and every policy fixture that backs the smoke tests. It
+also builds the real tarball in a temporary directory, installs it as a
+consumer, runs the installed CLI, and imports the public library export.
+
+Pushing a `v*.*.*` tag runs the release checks, captures the filename produced
+by one `npm pack`, publishes that exact tarball to npm with public access and
+provenance, then attaches the same tarball to the GitHub release. The workflow
+is the publishing authority; do not run a separate manual `npm publish` for the
+same tag.
 
 ## Contributing
 
