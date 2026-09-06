@@ -58,6 +58,20 @@ describe("modelpermit CLI", () => {
     ]);
   });
 
+  it("rejects unknown policy fields in deterministic order", () => {
+    const result = checkPermit({
+      writePath: ["./reports"],
+      allowedModels: ["gpt-5-mini"],
+      netwrok: "none"
+    });
+
+    assert.equal(result.valid, false);
+    assert.deepEqual(result.errors, [
+      "unsupported policy fields: netwrok, writePath"
+    ]);
+    assert.deepEqual(result.warnings, []);
+  });
+
   it("reports multiple overlaps once in deterministic order", () => {
     const result = checkPermit({
       allowedModels: ["model-z", "model-a", "model-z"],
@@ -187,6 +201,18 @@ describe("modelpermit CLI", () => {
         assert.equal(error.code, 1);
         assert.equal(report.valid, false);
         assert.ok(report.errors.length >= 2);
+        return true;
+      },
+    );
+  });
+
+  it("rejects typoed policy fields through the CLI", async () => {
+    await assert.rejects(
+      execFileAsync(process.execPath, ["src/cli.js", "check", "fixtures/unknown-field.json", "--json"]),
+      (error) => {
+        const report = JSON.parse(error.stdout);
+        assert.equal(error.code, 1);
+        assert.deepEqual(report.errors, ["unsupported policy field: netwrok"]);
         return true;
       },
     );
