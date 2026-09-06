@@ -6,6 +6,13 @@ export function describeModelPermit() {
 
 const approvalModes = new Set(["manual", "ask", "auto"]);
 const networkPolicies = new Set(["none", "allowlist", "any"]);
+const policyFields = new Set([
+  "allowedModels",
+  "deniedModels",
+  "approvalMode",
+  "network",
+  "writePaths"
+]);
 
 export function checkPermit(policy) {
   const errors = [];
@@ -13,6 +20,11 @@ export function checkPermit(policy) {
 
   if (!policy || typeof policy !== "object" || Array.isArray(policy)) {
     return { valid: false, errors: ["policy must be a JSON object"], warnings };
+  }
+
+  const unknownFields = Object.keys(policy).filter((field) => !policyFields.has(field)).sort();
+  if (unknownFields.length > 0) {
+    errors.push(`unsupported policy field${unknownFields.length === 1 ? "" : "s"}: ${unknownFields.join(", ")}`);
   }
 
   if (!Array.isArray(policy.allowedModels) || policy.allowedModels.length === 0) {
