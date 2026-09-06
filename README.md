@@ -79,6 +79,11 @@ When an optional field is present, its value must match the documented type or
 allowed values; falsy values such as `null`, `false`, and an empty string are not
 treated as omitted fields.
 
+The policy shape is closed: unsupported top-level fields make the policy
+invalid. This prevents a typo such as `netwrok` from silently bypassing the
+intended `network` restriction. Unknown field names are reported in sorted
+order so library and CLI diagnostics remain deterministic.
+
 A model id cannot appear in both `allowedModels` and `deniedModels`. Repeated
 conflicts are reported once, sorted by model id, so library and CLI diagnostics
 remain deterministic. Duplicate ids that occur only within one list do not
