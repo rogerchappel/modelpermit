@@ -19,3 +19,10 @@ if node src/cli.js check fixtures/conflicting.json --json > /tmp/modelpermit-con
 fi
 
 grep -q "allowedModels and deniedModels overlap: model-a, model-z" /tmp/modelpermit-conflicting.json
+
+if node src/cli.js check fixtures/unknown-field.json --json > /tmp/modelpermit-unknown-field.json; then
+  echo "Expected unknown-field fixture to fail validation."
+  exit 1
+fi
+
+grep -q "unsupported policy field: netwrok" /tmp/modelpermit-unknown-field.json
