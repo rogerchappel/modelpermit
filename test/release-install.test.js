@@ -50,6 +50,21 @@ describe("release install readiness", () => {
     assert.match(errors[2], /release\.yml must install project dependencies with npm ci/);
   });
 
+  it("reports each required workflow when its npm ci command is missing", () => {
+    for (const name of ["ci.yml", "release-dry-run.yml", "release.yml"]) {
+      const root = fixture();
+      const workflowPath = join(root, ".github/workflows", name);
+      const source = name === "release.yml"
+        ? releaseContract().replace("  - run: npm ci\n", "")
+        : "steps:\n  - run: echo 'dependencies omitted'\n";
+      writeFileSync(workflowPath, source);
+
+      const errors = checkReleaseInstall(root);
+      assert.equal(errors.length, 1, `${name}: ${errors.join(", ")}`);
+      assert.ok(errors[0].includes(`${name} must install project dependencies with npm ci`), `${name}: ${errors[0]}`);
+    }
+  });
+
   it("requires the tag workflow to publish and attach the exact packed artifact", () => {
     const validRelease = releaseContract();
     assert.deepEqual(checkReleaseInstall(fixture({ release: validRelease })), []);
