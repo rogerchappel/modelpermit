@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { checkReleaseInstall } from "../scripts/check-release-install.mjs";
 
-const releaseContract = (install = "npm ci") => `steps:
+const releaseContract = (install = "npm ci") => `env:
+  PUBLISH_NPM: 'true'
+steps:
   - run: ${install}
   - id: pack
     run: echo "tarball=$(npm pack --silent)" >> "$GITHUB_OUTPUT"
@@ -14,10 +16,11 @@ const releaseContract = (install = "npm ci") => `steps:
   - run: gh release create "$GITHUB_REF_NAME" "\${{ steps.pack.outputs.tarball }}"
 `;
 
-function fixture({ lockfile = true, install = "npm ci", release } = {}) {
+function fixture({ lockfile = true, install = "npm ci", release, publishNpm = true } = {}) {
   const root = mkdtempSync(join(tmpdir(), "modelpermit-release-install-"));
   mkdirSync(join(root, ".github/workflows"), { recursive: true });
   if (lockfile) writeFileSync(join(root, "package-lock.json"), "{}\n");
+  writeFileSync(join(root, "releasebox.config.json"), JSON.stringify({ release: { publishNpm } }));
 
   for (const name of ["ci.yml", "release-dry-run.yml", "release.yml"]) {
     writeFileSync(
@@ -77,5 +80,19 @@ describe("release install readiness", () => {
       const errors = checkReleaseInstall(fixture({ release: source }));
       assert.ok(errors.some((error) => error.includes(missing)), `${missing}: ${errors.join(", ")}`);
     }
+  });
+
+  it("rejects npm publishing when the release policy disables it", () => {
+    const errors = checkReleaseInstall(fixture({ publishNpm: false }));
+    assert.ok(errors.includes(".github/workflows/release.yml must disable npm publishing when release.publishNpm is false"));
+  });
+
+  it("requires the tag workflow to gate npm publishing and defaults policy-off", () => {
+    const actual = readFileSync(new URL("../.github/workflows/release.yml", import.meta.url), "utf8");
+    assert.match(actual, /PUBLISH_NPM: 'false'/);
+    assert.match(actual, /if: \$\{\{ env\.PUBLISH_NPM == 'true' \}\}/);
+
+    const errors = checkReleaseInstall(fixture({ publishNpm: false }));
+    assert.ok(errors.includes(".github/workflows/release.yml must disable npm publishing when release.publishNpm is false"));
   });
 });

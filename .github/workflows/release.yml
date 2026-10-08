@@ -12,6 +12,7 @@ permissions:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   RELEASEBOX_REF: v0.1.0
+  PUBLISH_NPM: 'false'
 
 jobs:
   release:
@@ -41,6 +42,7 @@ jobs:
         id: pack
         run: echo "tarball=$(npm pack --silent)" >> "$GITHUB_OUTPUT"
       - name: Publish package
+        if: ${{ env.PUBLISH_NPM == 'true' }}
         run: npm publish "${{ steps.pack.outputs.tarball }}" --provenance --access public
       - name: Generate release notes
         run: node /tmp/releasebox/bin/releasebox.js notes . > RELEASE_NOTES.md
