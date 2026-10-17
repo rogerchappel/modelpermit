@@ -40,8 +40,10 @@ export function checkPermit(policy) {
   }
 
   if (Array.isArray(policy.allowedModels) && Array.isArray(policy.deniedModels)) {
-    const deniedModels = new Set(policy.deniedModels);
-    const conflicts = [...new Set(policy.allowedModels.filter((model) => deniedModels.has(model)))].sort();
+    const deniedModels = new Set(policy.deniedModels.map((model) => typeof model === "string" ? model.trim() : model));
+    const conflicts = [...new Set(policy.allowedModels
+      .map((model) => typeof model === "string" ? model.trim() : model)
+      .filter((model) => deniedModels.has(model)))].sort();
 
     if (conflicts.length > 0) {
       errors.push(`allowedModels and deniedModels overlap: ${conflicts.join(", ")}`);

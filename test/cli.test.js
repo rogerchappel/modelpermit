@@ -72,6 +72,12 @@ describe("modelpermit CLI", () => {
     assert.deepEqual(result.warnings, []);
   });
 
+  it("rejects overlapping model ids despite surrounding whitespace", () => {
+    const result = checkPermit({ allowedModels: [" x"], deniedModels: ["x "] });
+    assert.equal(result.valid, false);
+    assert.deepEqual(result.errors, ["allowedModels and deniedModels overlap: x"]);
+  });
+
   it("reports multiple overlaps once in deterministic order", () => {
     const result = checkPermit({
       allowedModels: ["model-z", "model-a", "model-z"],
