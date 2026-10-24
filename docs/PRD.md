@@ -19,7 +19,7 @@ Repos increasingly contain agent config files, but allowed model/tool/network/wr
 ## V1 Scope
 
 - Node.js CLI package.
-- `modelpermit check modelpermit.json`, with `init` and `explain` reserved for later releases.
+- `modelpermit check modelpermit.json` is the only currently shipped CLI command. `init` and `explain` are reserved for later releases and are not available in V1.
 - JSON policy shape for allowed models, denied models, path scopes, network policy, and approval mode.
 - Validate configs with actionable errors and warnings.
 - Emit Markdown and JSON reports.
