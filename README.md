@@ -154,3 +154,7 @@ See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance.
 ## License
 
 MIT
+
+### JavaScript syntax validation
+
+`npm run build` (also run by `npm run release:check`) checks every `.js` file under `src/` and `test/` with the current Node.js runtime. Run `npm run validate:syntax` directly when you only need this static syntax check; it does not execute application code.
