@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -41,13 +41,17 @@ describe("release install readiness", () => {
     ]);
   });
 
-  it("reports workflows that use a non-deterministic install", () => {
-    const errors = checkReleaseInstall(fixture({ install: "npm install" }));
+  it("rejects npm install in each workflow with its deterministic-install diagnostic", () => {
+    for (const name of ["ci.yml", "release-dry-run.yml", "release.yml"]) {
+      const root = fixture();
+      const workflowPath = join(root, ".github/workflows", name);
+      const source = readFileSync(workflowPath, "utf8");
+      writeFileSync(workflowPath, source.replace("npm ci", "npm install"));
 
-    assert.equal(errors.length, 3);
-    assert.match(errors[0], /ci\.yml must install project dependencies with npm ci/);
-    assert.match(errors[1], /release-dry-run\.yml must install project dependencies with npm ci/);
-    assert.match(errors[2], /release\.yml must install project dependencies with npm ci/);
+      const errors = checkReleaseInstall(root);
+      assert.equal(errors.length, 1, `${name}: ${errors.join(", ")}`);
+      assert.equal(errors[0], `.github/workflows/${name} must install project dependencies with npm ci`);
+    }
   });
 
   it("reports each required workflow when its npm ci command is missing", () => {
