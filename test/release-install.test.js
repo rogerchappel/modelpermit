@@ -73,9 +73,24 @@ describe("release install readiness", () => {
     const validRelease = releaseContract();
     assert.deepEqual(checkReleaseInstall(fixture({ release: validRelease })), []);
 
+    const equivalentFormatting = `steps:
+  - name: Install dependencies
+    run: npm ci
+  - name: Pack
+    id: pack
+    run: |
+      echo "tarball=$(npm pack --silent)" >> "$GITHUB_OUTPUT"
+  - name: Publish
+    run: npm publish "\${{ steps.pack.outputs.tarball }}" --provenance --access public
+  - name: Attach artifact
+    run: gh release create "$GITHUB_REF_NAME" "\${{ steps.pack.outputs.tarball }}"
+`;
+    assert.deepEqual(checkReleaseInstall(fixture({ release: equivalentFormatting })), []);
+
     for (const [missing, source] of [
       ["pack output", validRelease.replace('  - id: pack\n    run: echo "tarball=$(npm pack --silent)" >> "$GITHUB_OUTPUT"\n', "")],
       ["publish the pack output with provenance", validRelease.replace('  - run: npm publish "${{ steps.pack.outputs.tarball }}" --provenance --access public\n', "")],
+      ["pack output", validRelease.replace('  - id: pack\n    run: echo "tarball=$(npm pack --silent)" >> "$GITHUB_OUTPUT"\n', '  - id: pack\n    run: echo "tarball=other.tgz" >> "$GITHUB_OUTPUT"\n')],
       ["release attachment", validRelease.replace('gh release create "$GITHUB_REF_NAME" "${{ steps.pack.outputs.tarball }}"', 'gh release create "$GITHUB_REF_NAME" "other.tgz"')],
     ]) {
       const errors = checkReleaseInstall(fixture({ release: source }));
