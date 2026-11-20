@@ -103,6 +103,29 @@ describe("modelpermit CLI", () => {
     assert.match(result.warnings.join("\n"), /root access/);
   });
 
+  it("writes reports to an explicit destination and keeps stdout empty", async () => {
+    const { mkdtemp, readFile, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const directory = await mkdtemp(join(tmpdir(), "modelpermit-report-"));
+    const destination = join(directory, "report.json");
+    try {
+      const { stdout } = await execFileAsync(process.execPath, ["src/cli.js", "check", "fixtures/strict.json", "--json", "--output", destination]);
+      assert.equal(stdout, "");
+      const report = JSON.parse(await readFile(destination, "utf8"));
+      assert.equal(report.valid, true);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("requires a destination for --output", async () => {
+    await assert.rejects(
+      execFileAsync(process.execPath, ["src/cli.js", "check", "fixtures/strict.json", "--output"]),
+      (error) => error.code === 2 && /--output requires a file path/.test(error.stderr),
+    );
+  });
+
   it("prints JSON for valid policy fixtures through the CLI", async () => {
     const { stdout } = await execFileAsync(process.execPath, ["src/cli.js", "check", "fixtures/strict.json", "--json"]);
     const report = JSON.parse(stdout);
@@ -186,6 +209,7 @@ describe("modelpermit CLI", () => {
       [["check", "--bogus", "fixtures/strict.json"], /unsupported option --bogus/],
       [["check", "fixtures/strict.json", "extra.json"], /unexpected argument extra\.json/],
       [["check", "fixtures/strict.json", "--json", "--json"], /--json may only be specified once/],
+      [["check", "fixtures/strict.json", "--output", "report.json", "extra.json"], /unexpected argument extra\.json/],
       [["check", "--json", "fixtures/strict.json"], /policy JSON file must come before --json/],
     ];
 

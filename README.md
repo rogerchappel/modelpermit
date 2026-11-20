@@ -21,7 +21,11 @@ Check a local model permit policy:
 ```sh
 modelpermit check modelpermit.json
 modelpermit check modelpermit.json --json
+modelpermit check modelpermit.json --json --output report.json
 ```
+
+Reports are printed to stdout by default. Use `--output <file>` to write the
+formatted (or `--json`) report to a file instead; the destination is overwritten.
 
 From a checkout, use the bundled fixtures to preview strict and permissive
 policy reports:
