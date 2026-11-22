@@ -50,9 +50,18 @@ const consumer = join(scratch, "consumer");
 execFileSync("npm", ["install", "--ignore-scripts", "--prefix", consumer, tarball], {
   stdio: "inherit"
 });
-execFileSync(join(consumer, "node_modules/.bin/modelpermit"), ["--help"], {
-  stdio: ["ignore", "ignore", "inherit"]
+const cli = join(consumer, "node_modules/.bin/modelpermit");
+const help = execFileSync(cli, ["--help"], { encoding: "utf8" });
+if (!help.includes("Usage:\n  modelpermit")) {
+  throw new Error("installed modelpermit bin did not print its expected usage output");
+}
+
+const check = execFileSync(cli, ["check", join(process.cwd(), "fixtures/strict.json")], {
+  encoding: "utf8"
 });
+if (!check.includes("Status: valid")) {
+  throw new Error("installed modelpermit bin did not report a passing policy check");
+}
 execFileSync(
   process.execPath,
   ["--input-type=module", "--eval", 'import("modelpermit").then(({ describeModelPermit }) => { if (!describeModelPermit()) process.exit(1); })'],
