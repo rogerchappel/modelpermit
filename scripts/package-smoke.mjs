@@ -22,12 +22,13 @@ const expectedFiles = [
 ];
 
 const scratch = await mkdtemp(join(tmpdir(), "modelpermit-package-smoke-"));
-const output = execFileSync("npm", ["pack", "--json", "--pack-destination", scratch], {
-  encoding: "utf8",
-  stdio: ["ignore", "pipe", "inherit"]
-});
+try {
+  const output = execFileSync("npm", ["pack", "--json", "--pack-destination", scratch], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "inherit"]
+  });
 
-const [pack] = JSON.parse(output);
+  const [pack] = JSON.parse(output);
 const packedFiles = new Set(pack.files.map((file) => file.path));
 const missing = expectedFiles.filter((file) => !packedFiles.has(file));
 
@@ -36,13 +37,13 @@ if (missing.length > 0) {
   for (const file of missing) {
     console.error(`- ${file}`);
   }
-  process.exit(1);
+  throw new Error("package smoke failed: missing expected files");
 }
 
 const packageJson = JSON.parse(await readFile("package.json", "utf8"));
 if (packageJson.bin?.modelpermit !== "./src/cli.js") {
   console.error("modelpermit package smoke failed; expected modelpermit bin in package metadata.");
-  process.exit(1);
+  throw new Error("package smoke failed: invalid bin metadata");
 }
 
 const tarball = join(scratch, pack.filename);
@@ -68,5 +69,7 @@ execFileSync(
   { cwd: consumer, stdio: "inherit" }
 );
 
-console.log(`modelpermit package smoke passed with ${pack.files.length} packed file(s).`);
-await rm(scratch, { recursive: true, force: true });
+  console.log(`modelpermit package smoke passed with ${pack.files.length} packed file(s).`);
+} finally {
+  await rm(scratch, { recursive: true, force: true });
+}
