@@ -21,9 +21,11 @@ const expectedFiles = [
   "CODE_OF_CONDUCT.md"
 ];
 
+const repositoryPath = new URL("../", import.meta.url).pathname;
 const scratch = await mkdtemp(join(tmpdir(), "modelpermit-package-smoke-"));
 try {
   const output = execFileSync("npm", ["pack", "--json", "--pack-destination", scratch], {
+    cwd: repositoryPath,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "inherit"]
   });
@@ -40,7 +42,7 @@ if (missing.length > 0) {
   throw new Error("package smoke failed: missing expected files");
 }
 
-const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 if (packageJson.bin?.modelpermit !== "./src/cli.js") {
   console.error("modelpermit package smoke failed; expected modelpermit bin in package metadata.");
   throw new Error("package smoke failed: invalid bin metadata");
@@ -57,7 +59,7 @@ if (!help.includes("Usage:\n  modelpermit")) {
   throw new Error("installed modelpermit bin did not print its expected usage output");
 }
 
-const check = execFileSync(cli, ["check", join(process.cwd(), "fixtures/strict.json")], {
+const check = execFileSync(cli, ["check", join(repositoryPath, "fixtures/strict.json")], {
   encoding: "utf8"
 });
 if (!check.includes("Status: valid")) {
